@@ -4,12 +4,15 @@ namespace WdrGsheetsImporter\Admin;
 
 use WdrGsheetsImporter\Database\Database;
 use WdrGsheetsImporter\Traits\TemplatingTrait;
-use Google\Client;
-use Google\Service\Sheets;
+use WdrGsheetsImporter\Admin\Synchronizer;
 
 class AdminController {
 
     private const UPDATE_SETTINGS = 'update_settings';
+    private const SYNCHRONIZE = 'synchronize';
+    private const CREATE_CATEGORY = 'create_category';
+    private const UPDATE_CATEGORY = 'edit_category';
+
     private Database $database;
 
     use TemplatingTrait;
@@ -26,6 +29,12 @@ class AdminController {
         switch ($actionType) {
             case self::UPDATE_SETTINGS: 
                 return $this->updateSettings();
+            case self::SYNCHRONIZE: 
+                return $this->synchronize();
+            case self::CREATE_CATEGORY: 
+                return $this->createCategory();
+            case self::UPDATE_CATEGORY: 
+                return $this->updateCategory();
         }
     }
 
@@ -56,6 +65,97 @@ class AdminController {
     
     public function categories(): void 
     {
-        echo $this->display('categories', []);
+        $categories = $this->database->getCategories();
+
+        echo $this->display('categories', [
+            'categories' => $categories
+        ]);
     }
-}
+
+    public function createCategory(): void 
+    {
+        $name = $_POST['name'];
+        $sheetColumns = $_POST['sheet_columns'];
+        $file = $_FILES['image'];
+
+        $filename = '';
+
+        if (!isset($name) || !isset($sheetColumns) || !isset($file)) {
+            return;
+        }
+
+        if (isset($_FILES['image'])) {
+            $filename = $this->uploadToWordpressStorage($_FILES['image']);
+        }
+
+        $this->database->createCategory($name, $sheetColumns, $filename);
+    }
+
+    public function updateCategory(): void 
+    {
+        $id = (int)$_POST['category_id'];
+        $filename = '';
+
+        if (!$id) return;
+
+        $category = $this->database->getCategory($id);
+
+        if (!$category) return;
+
+
+        if (isset($_FILES['image'])) {
+            $filename = $this->uploadToWordpressStorage($_FILES['image']);
+        }
+
+        $category->update($_POST['name'], $_POST['sheet_columns'], $filename);
+        $this->database->updateCategory($category);
+    }
+
+    private function uploadToWordpressStorage(array $file): string 
+    {
+        $uploadDir = wp_upload_dir();
+        $target = $uploadDir['path'] . '/wdr-gsheets-importer/';
+
+        if (!file_exists($target)) {
+            wp_mkdir_p($target);
+        }
+
+        $filename = $file['name'];
+        $tempFile = $file['tmp_name'];
+
+        if (move_uploaded_file($tempFile, $target . $filename)) {
+            $attachment = array(
+                'post_mime_type' => mime_content_type( $target . $filename ),
+                'post_title' => preg_replace( '/\.[^.]+$/', '', $filename ),
+                'post_content' => '',
+                'post_status' => 'inherit'
+            );
+
+            $attachmentId = wp_insert_attachment($attachment, $target . $filename);
+
+            if (!is_wp_error($attachmentId)) {
+                require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                $attachmentData = wp_generate_attachment_metadata( $attachmentId, $target . $filename );
+                wp_update_attachment_metadata( $attachmentId, $attachmentData );
+            }
+
+            return wp_get_attachment_url($attachmentId);
+        } else {
+            return '';
+        }
+
+    }
+
+    private function synchronize(): void 
+    {
+        $synchronizer = new Synchronizer();
+        $synchronizer->sync();
+    }
+
+    private function slugify(string $string): string 
+    {
+        $lowercaseString = strtolower($string);
+        $hyphenatedString = str_replace(' ', '-', $lowercaseString);
+        return $hyphenatedString;
+    }
+} 

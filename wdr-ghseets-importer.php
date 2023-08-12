@@ -23,7 +23,7 @@ register_deactivation_hook(__FILE__, [$plugin, 'deactivate']);
 add_action('admin_menu', [$plugin, 'addSidebarMenuItem']);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $plugin->adminController->handle();
+    add_action('init', function () use ($plugin) { $plugin->adminController->handle(); });
     return;
 }
 
