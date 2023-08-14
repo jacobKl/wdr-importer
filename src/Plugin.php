@@ -9,29 +9,26 @@ defined('ABSPATH') or die(404);
 
 class Plugin {
     public AdminController $adminController;
+    public ClientController $clientController;
 
     public function __construct(AdminController $adminController)
     {
         $this->adminController = $adminController;
     }
 
-    function activate() {
+    public function activate() {
         DbInitializator::initDb();
-
-        add_action('wdr_update_settings', [$this->adminController, 'handleSettingsUpdate']);
     }
 
-    function deactivate() {
-
-    }
-
-    function uninstall() {
+    public function deactivate() {
 
     }
 
-    function addSidebarMenuItem() {
-        $controller = $this->adminController;
+    public function uninstall() {
 
+    }
+
+    public function addSidebarMenuItem() {
         add_menu_page('Synchronizacja arkusza google', 'WDR Importer', 'manage_options', 'wdr-gsheets-importer', [$this->adminController, 'settings']);
         
         add_submenu_page(

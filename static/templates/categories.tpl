@@ -32,7 +32,7 @@
 
   <div>
     {foreach $categories as $category}
-      <form class="bg-gray-100 rounded p-3 flex flex-col md:flex-row" method="POST" enctype="multipart/form-data">
+      <form class="bg-gray-100 my-3 rounded p-3 flex flex-col md:flex-row" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="action_type" value="edit_category">
         <input type="hidden" name="category_id" value="{$category->getId()}"/>
         <div class="me-3">

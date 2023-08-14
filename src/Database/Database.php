@@ -144,4 +144,71 @@ class Database {
             $wpdb->query("TRUNCATE TABLE $table");
         }
     }
+
+    public function getMakes(): array 
+    {
+        global $wpdb, $table_prefix;
+
+        $results = $wpdb->get_results('SELECT * FROM ' . $table_prefix . DbInitializator::MAKES_TABLE, ARRAY_A) ?? [];
+        
+        return $results ?? [];
+    }
+
+    public function getModels(int $makeId): array 
+    {
+        global $wpdb, $table_prefix;
+
+        $query = 'SELECT * FROM ' . $table_prefix . DbInitializator::MODELS_TABLE;
+        $args = [];
+
+        if ($makeId) {
+            $query .= ' WHERE make_id = %d';
+            $args[] = $makeId;
+        }
+
+        $prep = $wpdb->prepare($query, [...$args]);
+
+        $results = $wpdb->get_results($prep, ARRAY_A) ?? [];
+        
+        return $results ?? [];
+    }
+
+    public function getServices(int $makeId, int $modelId, array $columns): array 
+    {
+        global $wpdb, $table_prefix;
+
+        $query = 'SELECT * FROM ' . $table_prefix . DbInitializator::SERVICES_TABLE;
+        $args = [];
+
+        if ($makeId) {
+            $query .= ' WHERE make_id = %d';
+            $args[] = $makeId;
+        }
+
+        if ($modelId) {
+            $query .= ' AND model_id = %d';
+            $args[] = $modelId;
+        }
+
+        if ($columns) {
+            $placeholders = implode(', ', array_fill(0, count($columns), '%s'));
+            $query .= " AND column_name IN ($placeholders)";
+            $args = array_merge($args, $columns);
+        }
+        
+        $prep = $wpdb->prepare($query, [...$args]);
+
+        $results = $wpdb->get_results($prep, ARRAY_A) ?? [];
+        
+        return $results ?? [];
+    }
+
+    public function getCategoriesForApp() 
+    {
+        global $wpdb, $table_prefix;
+
+        $results = $wpdb->get_results('SELECT id,name,image FROM ' . $table_prefix . DbInitializator::CATEGORIES_TABLE, ARRAY_A) ?? [];
+        
+        return $results;
+    }
 }
