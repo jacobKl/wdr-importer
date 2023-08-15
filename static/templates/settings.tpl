@@ -50,3 +50,9 @@
     </form>
   </div>
 </main>
+
+{if $flash}
+<div class="p-3 border-2 border-rose-300 bg-rose-200 rounded shadow w-full mt-3">
+  {$flash}
+</div>
+{/if}

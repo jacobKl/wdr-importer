@@ -25,7 +25,6 @@ class AdminController {
     public function handle()
     {
         $actionType = $_POST['action_type'];
-
         switch ($actionType) {
             case self::UPDATE_SETTINGS: 
                 return $this->updateSettings();
@@ -41,12 +40,19 @@ class AdminController {
     public function settings(): void
     {
         $settings = $this->database->getSettings();
+        $flash = '';    
+
+        if (isset($_SESSION['WDR_FLASH'])) {
+            $flash = $_SESSION['WDR_FLASH'];
+            unset($_SESSION['WDR_FLASH']);
+        }
 
         $view = $this->display('settings', [
             'sheet' => $settings->getSheet(),
             'conf_file' => 'credentials.json',
             'cron' => $settings->getCron(),
             'file_exists' => file_exists(constant('WDR_GSHEETS_PLUGIN') . '/credentials.json'),
+            'flash' => $flash
         ]);
 
         echo $view;
@@ -61,6 +67,7 @@ class AdminController {
         move_uploaded_file($file["tmp_name"], constant('WDR_GSHEETS_PLUGIN') . '/credentials.json');
 
         $this->database->updateSettings($sheet, constant('WDR_GSHEETS_PLUGIN') . '/credentials.json', $cron);
+        $this->redirectToPage('wdr-gsheets-importer');
     }
     
     public function categories(): void 
@@ -89,6 +96,7 @@ class AdminController {
         }
 
         $this->database->createCategory($name, $sheetColumns, $filename);
+        $this->redirectToPage('categories');
     }
 
     public function updateCategory(): void 
@@ -109,6 +117,7 @@ class AdminController {
 
         $category->update($_POST['name'], $_POST['sheet_columns'], $filename);
         $this->database->updateCategory($category);
+        $this->redirectToPage('categories');
     }
 
     private function uploadToWordpressStorage(array $file): string 
@@ -148,8 +157,13 @@ class AdminController {
 
     private function synchronize(): void 
     {
-        $synchronizer = new Synchronizer();
-        $synchronizer->sync();
+        try {
+            $synchronizer = new Synchronizer();
+            $synchronizer->sync();
+        } catch (\Exception $err) {
+            $_SESSION['WDR_FLASH'] = 'Synchronizacja nie powiodła się.';            
+        } 
+        $this->redirectToPage('wdr-gsheets-importer');
     }
 
     private function slugify(string $string): string 
@@ -157,5 +171,10 @@ class AdminController {
         $lowercaseString = strtolower($string);
         $hyphenatedString = str_replace(' ', '-', $lowercaseString);
         return $hyphenatedString;
+    }
+
+    private function redirectToPage(string $page): void 
+    {
+        header('Location: /wp-admin/admin.php?page=' . $page);
     }
 } 

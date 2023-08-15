@@ -73,7 +73,8 @@ class Synchronizer {
         }
 
         foreach ($services as $service) {
-            $this->database->createService($service);
+            if (isset($service['price']) && $service['price'] != 0 && !empty($service['price'])) 
+                $this->database->createService($service);
         }
     }
 

@@ -10,4 +10,14 @@ export default defineConfig({
 		  plugins: [tailwindcss, require('autoprefixer')],
 		},
 	  },
+	build: {
+		rollupOptions: {
+            output: {
+                entryFileNames: 'plugin.js',
+                assetFileNames: 'plugin.css',
+                chunkFileNames: "chunk.js",
+                manualChunks: undefined,
+            }
+        }
+	}
 });
