@@ -4,7 +4,7 @@ function ChooseMake({makes, handleMakeChange}) {
   return (
     <div className="step" data-aos="fade-right">
         <h3>Wybierz markę telefonu</h3>
-        <p>Aby wybrać markę rozwiń pole i wybierz markę, która znajduje się w naszej bazie. Nieobecność danej marki świadczy o nie wykonywaniu usług dla danych telefonów.</p>
+        <p>Aby wybrać markę rozwiń pole i wybierz markę, która znajduje się w naszej bazie.</p>
     
         <>
             <select onInput={(e) => handleMakeChange(e)} className="select">

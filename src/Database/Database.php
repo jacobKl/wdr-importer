@@ -66,7 +66,6 @@ class Database {
         global $wpdb, $table_prefix;
 
         $results = $wpdb->get_results('SELECT * FROM ' . $table_prefix . DbInitializator::CATEGORIES_TABLE, ARRAY_A) ?? [];
-        
         $results = array_map(function (array $item) {
             return CategoriesModel::fromDb($item);
         }, $results);
@@ -74,12 +73,13 @@ class Database {
         return $results;
     }
 
-    public function createCategory(string $name, string $sheetColumns, string $filename): void 
+    public function createCategory(string $name, string $sheetColumnsDisplayNames, string $sheetColumns, string $filename): void 
     {
         global $wpdb, $table_prefix;
         
-        $wpdb->query($wpdb->prepare('INSERT INTO ' . $table_prefix . DbInitializator::CATEGORIES_TABLE . ' VALUES(null, %s, %s, %s)', [
+        $wpdb->query($wpdb->prepare('INSERT INTO ' . $table_prefix . DbInitializator::CATEGORIES_TABLE . ' VALUES(null, %s, %s, %s, %s)', [
             $name,
+            $sheetColumnsDisplayNames,
             $sheetColumns,
             $filename
         ]));
@@ -89,11 +89,20 @@ class Database {
     {
         global $wpdb, $table_prefix;
 
-        $wpdb->query($wpdb->prepare('UPDATE ' . $table_prefix . DbInitializator::CATEGORIES_TABLE . ' SET name = %s, sheet_columns = %s, image = %s WHERE id = %d', [
+        $wpdb->query($wpdb->prepare('UPDATE ' . $table_prefix . DbInitializator::CATEGORIES_TABLE . ' SET name = %s, sheet_columns_display_names = %s, sheet_columns = %s, image = %s WHERE id = %d', [
             'name' => $category->getName(),
+            'sheet_columns_display_names' => $category->getSheetColumnsDisplayNames(),
             'sheet_columns' => $category->getSheetColumns(),
             'image' => $category->getImage(),
             'id' => $category->getId()
+        ]));
+    }
+
+    public function deleteCategory(int $id): void 
+    {
+        global $wpdb, $table_prefix;
+        $wpdb->query($wpdb->prepare('DELETE FROM ' . $table_prefix . DbInitializator::CATEGORIES_TABLE . ' WHERE id = %d', [
+            'id' => $id
         ]));
     }
 
@@ -122,7 +131,7 @@ class Database {
     {
         global $wpdb, $table_prefix;
 
-        $wpdb->query($wpdb->prepare('INSERT INTO ' . $table_prefix . DbInitializator::SERVICES_TABLE . ' VALUES(NULL, %d, %d, %s, %d)', [
+        $wpdb->query($wpdb->prepare('INSERT INTO ' . $table_prefix . DbInitializator::SERVICES_TABLE . ' VALUES(NULL, %d, %d, %s, %s)', [
             $service['make_id'],
             $service['model_id'],
             $service['column_name'],
@@ -150,7 +159,6 @@ class Database {
         global $wpdb, $table_prefix;
 
         $results = $wpdb->get_results('SELECT * FROM ' . $table_prefix . DbInitializator::MAKES_TABLE, ARRAY_A) ?? [];
-        
         return $results ?? [];
     }
 
@@ -207,7 +215,7 @@ class Database {
     {
         global $wpdb, $table_prefix;
 
-        $results = $wpdb->get_results('SELECT id,name,image FROM ' . $table_prefix . DbInitializator::CATEGORIES_TABLE, ARRAY_A) ?? [];
+        $results = $wpdb->get_results('SELECT id,name,image,sheet_columns_display_names, sheet_columns FROM ' . $table_prefix . DbInitializator::CATEGORIES_TABLE, ARRAY_A) ?? [];
         
         return $results;
     }

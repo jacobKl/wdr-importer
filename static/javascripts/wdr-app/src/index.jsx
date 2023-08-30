@@ -19,6 +19,7 @@ export function App() {
   const [model, setModel] = useState({});
 
   const [categories, setCategories] = useState([]);
+  const [category, setCategory] = useState({})
 
   const [services, setServices] = useState([]);
 
@@ -39,7 +40,7 @@ export function App() {
       case 3: 
         return <Categories categories={categories} handleCategoryChange={handleCategoryChange} />
       case 4: 
-        return loading ? <Loader /> : <Services services={services} />
+        return loading ? <Loader /> : <Services services={services} category={category} />
     }
   }
 
@@ -56,7 +57,15 @@ export function App() {
     getMakes();
 
     const getCategories = async () => {
-      const response = await requests.getCategories();
+      let response = await requests.getCategories();
+
+      if (response.length) {
+        response = response.map(category => ({
+          ...category,
+          sheet_columns: category.sheet_columns.split(';'),
+          sheet_columns_display_names: category.sheet_columns_display_names.split(';'),
+        }))
+      }
       setCategories(response);
     };
 
@@ -87,6 +96,7 @@ export function App() {
     const { id } = category;
     setStep(4);
     setLoading(true);
+    setCategory(category);
     const services = await requests.getServices(make.id, model.id, id);
     setLoading(false);
     setServices(services);
@@ -96,6 +106,7 @@ export function App() {
     <>
       { step > 1 ? <Bar step={step} goBack={goBack} make={make} model={model}/> : null}
       {renderer()}
+      <p>Jeżeli nie widzisz swojego modelu na liście, <a href="https://m.me/serwis.wlozdoryzu">skontaktuj się</a> z nami.</p>
     </>
   );
 }

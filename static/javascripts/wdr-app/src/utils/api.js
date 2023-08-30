@@ -1,4 +1,4 @@
-const root = 'http://www.wlozdoryzu.fl/wp-admin/admin-ajax.php';
+const root = 'https://www.wlozdoryzu.pl/wp-admin/admin-ajax.php';
 
 const requests = {
     getMakes: async () => {

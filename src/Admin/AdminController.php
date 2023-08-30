@@ -12,6 +12,7 @@ class AdminController {
     private const SYNCHRONIZE = 'synchronize';
     private const CREATE_CATEGORY = 'create_category';
     private const UPDATE_CATEGORY = 'edit_category';
+    private const DELETE_CATEGORY = 'delete_category';
 
     private Database $database;
 
@@ -34,6 +35,8 @@ class AdminController {
                 return $this->createCategory();
             case self::UPDATE_CATEGORY: 
                 return $this->updateCategory();
+            case self::DELETE_CATEGORY: 
+                return $this->deleteCategory();
         }
     }
 
@@ -82,12 +85,13 @@ class AdminController {
     public function createCategory(): void 
     {
         $name = $_POST['name'];
+        $sheetColumnsDisplayNames = $_POST['sheet_columns_display_names'];
         $sheetColumns = $_POST['sheet_columns'];
         $file = $_FILES['image'];
 
         $filename = '';
 
-        if (!isset($name) || !isset($sheetColumns) || !isset($file)) {
+        if (!isset($name) || !isset($sheetColumnsDisplayNames) || !isset($sheetColumns) || !isset($file)) {
             return;
         }
 
@@ -95,7 +99,7 @@ class AdminController {
             $filename = $this->uploadToWordpressStorage($_FILES['image']);
         }
 
-        $this->database->createCategory($name, $sheetColumns, $filename);
+        $this->database->createCategory($name, $sheetColumnsDisplayNames, $sheetColumns, $filename);
         $this->redirectToPage('categories');
     }
 
@@ -115,8 +119,17 @@ class AdminController {
             $filename = $this->uploadToWordpressStorage($_FILES['image']);
         }
 
-        $category->update($_POST['name'], $_POST['sheet_columns'], $filename);
+        $category->update($_POST['name'], $_POST['sheet_columns_display_names'], $_POST['sheet_columns'], $filename);
         $this->database->updateCategory($category);
+        $this->redirectToPage('categories');
+    }
+
+    public function deleteCategory(): void 
+    {
+        $id = (int)$_POST['category_id'];
+        if (!$id) return;
+
+        $this->database->deleteCategory($id);
         $this->redirectToPage('categories');
     }
 

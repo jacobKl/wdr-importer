@@ -29,12 +29,11 @@
         </div>
       </div>
       <div class="md:flex md:items-center mb-6">
-        <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4">Pora pobierania</label>
         <input
-          required
+          type="hidden"
           class="bg-gray-200 appearance-none border-2 border-gray-200 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
           name="cron"
-          value="{$cron}"
+          value="*"
         />
       </div>
       <input type="submit" value="Zapisz" class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" />

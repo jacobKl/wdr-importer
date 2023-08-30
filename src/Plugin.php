@@ -26,7 +26,7 @@ class Plugin {
             }
         });
 
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
             add_action('init', \Closure::fromCallable([$this->adminController, 'handle']));
         }
 
@@ -42,7 +42,7 @@ class Plugin {
     }
 
     public function deactivate() {
-
+        DbInitializator::deactivateDb();
     }
 
     public function uninstall() {

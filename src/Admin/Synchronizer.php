@@ -36,7 +36,7 @@ class Synchronizer {
 
         $headers = $values[0]; unset($values[0]);
         $makes = array_unique(array_map(function (array $row) {
-            return $row[0];
+            return trim($row[0]);
         }, $values));
 
         foreach ($makes as $key => $make) {
@@ -46,7 +46,7 @@ class Synchronizer {
         $makesAssoc = array_flip($makes);
 
         $models = array_map(function (array $row) use ($makesAssoc) {
-            return [ 'name' => $row[1], 'make' => $makesAssoc[$row['0']]];
+            return [ 'name' => $row[1], 'make' => $makesAssoc[trim($row['0'])]];
         }, $values);
 
         foreach ($models as $key => $model) {
@@ -56,7 +56,7 @@ class Synchronizer {
         $services = [];
 
         foreach ($values as $row) {
-            $makeName = $row[0];
+            $makeName = trim($row[0]);
             $makeId = $makesAssoc[$makeName];
 
             $modelName = $row[1];
@@ -65,7 +65,6 @@ class Synchronizer {
             }))[0];
 
             $i = 2;
-
             while (isset($headers[$i])) {
                 $services[] = ['make_id' => $makeId, 'model_id' => $modelId, 'column_name' => $headers[$i], 'price' => isset($row[$i]) ? $row[$i] : 0];
                 $i++;
@@ -73,8 +72,7 @@ class Synchronizer {
         }
 
         foreach ($services as $service) {
-            if (isset($service['price']) && $service['price'] != 0 && !empty($service['price'])) 
-                $this->database->createService($service);
+            $this->database->createService($service);
         }
     }
 
