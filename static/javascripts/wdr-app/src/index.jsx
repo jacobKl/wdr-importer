@@ -23,6 +23,8 @@ export function App() {
 
   const [services, setServices] = useState([]);
 
+  const [comments, setComments] = useState([]);
+
   const [step, setStep] = useState(1);
 
   const [loading, setLoading] = useState(false);
@@ -40,7 +42,7 @@ export function App() {
       case 3: 
         return <Categories categories={categories} handleCategoryChange={handleCategoryChange} />
       case 4: 
-        return loading ? <Loader /> : <Services services={services} category={category} />
+        return loading ? <Loader /> : <Services comments={comments} services={services} category={category} />
     }
   }
 
@@ -70,6 +72,13 @@ export function App() {
     };
 
     getCategories();
+
+    const getComments = async () => {
+      let response = await requests.getComments();
+      setComments(response);
+    }
+
+    getComments();
   }, []);
 
   const handleMakeChange = async (event) => {

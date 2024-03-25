@@ -53,4 +53,10 @@ class ClientController {
 
         wp_send_json($categories);
     }
+
+    public function getComments() 
+    {
+        header('Access-Control-Allow-Origin: *');
+        wp_send_json($this->database->getCommentsForApp());
+    }
 }

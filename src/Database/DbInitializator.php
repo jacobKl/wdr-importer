@@ -9,6 +9,7 @@ class DbInitializator
     public const MAKES_TABLE = 'wdr_importer_makes';
     public const MODELS_TABLE = 'wdr_importer_models';
     public const SERVICES_TABLE = 'wdr_importer_services';
+    public const COMMENTS_TABLE = 'wdr_importer_comments';
 
     public static function initDb(): void
     {
@@ -35,6 +36,10 @@ class DbInitializator
 
         /** SERVICES */
         maybe_create_table($table_prefix . self::SERVICES_TABLE,  'CREATE TABLE ' . $table_prefix . self::SERVICES_TABLE . ' (id INT PRIMARY KEY AUTO_INCREMENT, make_id int, model_id int, column_name varchar(100), price varchar(200))');
+
+        /** COMMENTS */
+        maybe_create_table($table_prefix . self::COMMENTS_TABLE,  'CREATE TABLE ' . $table_prefix . self::COMMENTS_TABLE . ' (id INT PRIMARY KEY AUTO_INCREMENT, name varchar(100), comment TEXT)');
+
     }
 
     public static function deactivateDb(): void 
@@ -43,6 +48,7 @@ class DbInitializator
         $wpdb->query('DROP TABLE ' . $table_prefix . self::SERVICES_TABLE);
         $wpdb->query('DROP TABLE ' . $table_prefix . self::MAKES_TABLE);
         $wpdb->query('DROP TABLE ' . $table_prefix . self::MODELS_TABLE);
+        $wpdb->query('DROP TABLE ' . $table_prefix . self::COMMENTS_TABLE);
     }
 
     public static function deleteDb(): void 

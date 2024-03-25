@@ -24,6 +24,12 @@ const requests = {
         const json = await response.json();
 
         return json;
+    },
+    getComments: async () => {
+        const response = await fetch(`${root}?action=get_comments`);
+        const json = await response.json();
+
+        return json;
     }
 }
 

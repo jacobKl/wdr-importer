@@ -24,10 +24,13 @@ add_action('wp_ajax_get_makes', \Closure::fromCallable([$client, 'getMakes']));
 add_action('wp_ajax_get_models', \Closure::fromCallable([$client, 'getModels']));
 add_action('wp_ajax_get_services', \Closure::fromCallable([$client, 'getServices']));
 add_action('wp_ajax_get_categories', \Closure::fromCallable([$client, 'getCategories']));
+add_action('wp_ajax_get_comments', \Closure::fromCallable([$client, 'getComments']));
 
 add_action('wp_ajax_nopriv_get_makes', \Closure::fromCallable([$client, 'getMakes']));
 add_action('wp_ajax_nopriv_get_models', \Closure::fromCallable([$client, 'getModels']));
 add_action('wp_ajax_nopriv_get_services', \Closure::fromCallable([$client, 'getServices']));
 add_action('wp_ajax_nopriv_get_categories', \Closure::fromCallable([$client, 'getCategories']));
+add_action('wp_ajax_nopriv_get_comments', \Closure::fromCallable([$client, 'getComments']));
+
 register_activation_hook(__FILE__, \Closure::fromCallable([$plugin, 'activate']));
 register_deactivation_hook(__FILE__, \Closure::fromCallable([$plugin, 'deactivate']));

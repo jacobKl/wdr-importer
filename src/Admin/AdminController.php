@@ -13,6 +13,9 @@ class AdminController {
     private const CREATE_CATEGORY = 'create_category';
     private const UPDATE_CATEGORY = 'edit_category';
     private const DELETE_CATEGORY = 'delete_category';
+    private const CREATE_COMMENT = 'create_comment';
+    private const EDIT_COMMENT = 'edit_comment';
+    private const DELETE_COMMENT = 'delete_comment';
 
     private Database $database;
 
@@ -37,6 +40,12 @@ class AdminController {
                 return $this->updateCategory();
             case self::DELETE_CATEGORY: 
                 return $this->deleteCategory();
+            case self::CREATE_COMMENT: 
+                return $this->createComment();
+            case self::EDIT_COMMENT: 
+                return $this->editComment();
+            case self::DELETE_COMMENT: 
+                return $this->deleteComment();
         }
     }
 
@@ -131,6 +140,54 @@ class AdminController {
 
         $this->database->deleteCategory($id);
         $this->redirectToPage('categories');
+    }
+
+    public function comments(): void 
+    {
+        $comments = $this->database->getComments();
+
+        echo $this->display('comments', [
+            'comments' => $comments
+        ]);
+    }
+
+    public function createComment(): void 
+    {
+        $name = $_POST['name'];
+        $comment = $_POST['comment'];
+
+        if (!isset($name) || !isset($comment)) {
+            return;
+        }
+
+        $this->database->createComment($name, $comment);
+        $this->redirectToPage('comments');
+    }
+
+    public function editComment(): void 
+    {
+        $id = (int)$_POST['comment_id'];
+
+        if (!$id) return;
+
+        $comment = $this->database->getComment($id);
+
+        if (!$comment) return;
+
+
+        $comment->update($_POST['name'], $_POST['comment']);
+
+        $this->database->updateComment($comment);
+        $this->redirectToPage('comments');
+    }
+
+    public function deleteComment(): void 
+    {
+        $id = (int)$_POST['comment_id'];
+        if (!$id) return;
+
+        $this->database->deleteComment($id);
+        $this->redirectToPage('comments');
     }
 
     private function uploadToWordpressStorage(array $file): string 

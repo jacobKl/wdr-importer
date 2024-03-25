@@ -76,7 +76,15 @@
     margin-top: 1rem;
     margin: 1rem auto;
     width: 100%;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
+
+    @media (max-width: 1200px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+        @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   .category {
@@ -111,7 +119,7 @@
 
   .additional-message {
     font-size: .75rem;
-    color: #aaa;
+    color: #333;
     font-weight: 400 !important;
     padding: 0 .5rem;
     display: inline-block;

@@ -6,6 +6,7 @@ use WdrGsheetsImporter\Database\DbInitializator;
 
 use WdrGsheetsImporter\Database\Model\SettingsModel;
 use WdrGsheetsImporter\Database\Model\CategoriesModel;
+use WdrGsheetsImporter\Database\Model\CommentModel;
 
 if ( ! function_exists( 'maybe_create_table' ) ) {
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -216,6 +217,75 @@ class Database {
         global $wpdb, $table_prefix;
 
         $results = $wpdb->get_results('SELECT id,name,image,sheet_columns_display_names, sheet_columns FROM ' . $table_prefix . DbInitializator::CATEGORIES_TABLE, ARRAY_A) ?? [];
+        
+        return $results;
+    }
+
+    public function getComments()
+    {
+        global $wpdb, $table_prefix;
+        $results = $wpdb->get_results('SELECT id,name,comment FROM ' . $table_prefix . DbInitializator::COMMENTS_TABLE, ARRAY_A) ?? [];
+        $results = array_map(function (array $item) {
+            return CommentModel::fromDb($item);
+        }, $results);
+
+        return $results;
+    }
+
+    public function createComment(string $name, string $comment) 
+    {
+        global $wpdb, $table_prefix;
+        
+        $wpdb->query($wpdb->prepare('INSERT INTO ' . $table_prefix . DbInitializator::COMMENTS_TABLE . ' VALUES(null, %s, %s)', [
+            $name,
+            $comment
+        ]));
+    }
+
+    public function getComment(int $id)
+    {
+        global $wpdb, $table_prefix;
+        
+        $result = $wpdb->get_results($wpdb->prepare(
+                'SELECT * FROM ' . $table_prefix . DbInitializator::COMMENTS_TABLE . ' WHERE id = %d',
+                [
+                    'id' => $id
+                ]
+            ),
+            ARRAY_A
+        );
+
+        if ($result[0]) {
+            return CommentModel::fromDb($result[0]);
+        } else {
+            return null;
+        }
+    }
+
+    public function updateComment(CommentModel $comment): void 
+    {
+        global $wpdb, $table_prefix;
+
+        $wpdb->query($wpdb->prepare('UPDATE ' . $table_prefix . DbInitializator::COMMENTS_TABLE . ' SET name = %s, comment = %s WHERE id = %d', [
+            'name' => $comment->getName(),
+            'comment' => $comment->getComment(),
+            'id' => $comment->getId()
+        ]));
+    }
+
+    public function deleteComment(int $id): void 
+    {
+        global $wpdb, $table_prefix;
+        $wpdb->query($wpdb->prepare('DELETE FROM ' . $table_prefix . DbInitializator::COMMENTS_TABLE . ' WHERE id = %d', [
+            'id' => $id
+        ]));
+    }
+
+    public function getCommentsForApp(): array
+    {
+        global $wpdb, $table_prefix;
+
+        $results = $wpdb->get_results('SELECT id, name, comment FROM ' . $table_prefix . DbInitializator::COMMENTS_TABLE, ARRAY_A) ?? [];
         
         return $results;
     }

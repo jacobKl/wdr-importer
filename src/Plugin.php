@@ -60,6 +60,15 @@ class Plugin {
             'categories',
             [$this->adminController, 'categories']
         );
+
+        add_submenu_page(
+            'wdr-gsheets-importer',
+            'Uwagi',
+            'Uwagi',
+            'manage_options',
+            'comments',
+            [$this->adminController, 'comments']
+        );
     }
 
     public function addNewTemplate(array $templates): array

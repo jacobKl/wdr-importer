@@ -2,13 +2,20 @@ import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-import { additionalMessage } from "../utils/additional-messages-parser";
 
-function Services({ services, category }) {
+function Services({ services, category, comments }) {
   const getPrettyName = (key) => {
     const index = category.sheet_columns.findIndex(element => element == key);
     if (index == -1) return key;
     return category.sheet_columns_display_names[index];
+  }
+
+  const prettyComment = (colName) => {
+    const result = comments.filter(item => item.name === colName)[0];
+
+    if (result) return result.comment;
+
+    return '';
   }
 
   return (
@@ -41,7 +48,7 @@ function Services({ services, category }) {
                   )}
                 </td>
                 <td>
-                  <span className="additional-message"> {additionalMessage(service.column_name)}</span>
+                  <span className="additional-message">{prettyComment(service.column_name)}</span>
                 </td>
               </tr>
             ))}
